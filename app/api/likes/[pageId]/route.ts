@@ -1,109 +1,96 @@
 // app/api/likes/[pageId]/route.ts
 
-import { pool } from "@/lib/init-db";
+import { NextRequest, NextResponse } from 'next/server';
+import { Pool } from 'pg';
 
-// GET: Return total likes for a page
-export async function GET(
-  req: Request,
-  { params }: { params: { pageId: string } }
-) {
-  const { pageId } = params;
+const connectionString =
+  process.env.likes_POSTGRES_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.likes_POSTGRES_URL_NO_SSL;
+
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
+
+// Helper to unwrap the promise for type compatibility
+type Params = { params: Promise<{ pageId: string }> };
+
+export async function GET(req: NextRequest, context: Params) {
+  const { pageId } = await context.params; // unwrap promise
 
   if (!pageId) {
-    return new Response(
-      JSON.stringify({ success: false, error: "Missing pageId" }),
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: 'Missing pageId' }, { status: 400 });
   }
 
   try {
     const result = await pool.query(
-      'SELECT COUNT(*) AS like_count FROM page_likes WHERE page_id = $1',
+      `SELECT page_id, like_count, updated_at 
+       FROM page_stats 
+       WHERE page_id = $1
+       LIMIT 1`,
       [pageId]
     );
 
-    const likeCount = parseInt(result.rows[0].like_count, 10);
+    if (result.rows.length === 0) {
+      return NextResponse.json({
+        success: true,
+        page: { page_id: pageId, like_count: 0, updated_at: null },
+      });
+    }
 
-    return new Response(
-      JSON.stringify({ success: true, page_id: pageId, like_count }),
-      { status: 200 }
-    );
-  } catch (err) {
-    console.error("GET /api/likes error:", err);
-    return new Response(
-      JSON.stringify({ success: false, error: "Database error" }),
+    return NextResponse.json({ success: true, page: result.rows[0] });
+  } catch (error) {
+    console.error('Error in GET /api/likes/[pageId]:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal error', details: (error as Error).message },
       { status: 500 }
     );
   }
 }
 
-// POST: Increment like for a page for a unique user
-export async function POST(
-  req: Request,
-  { params }: { params: { pageId: string } }
-) {
-  const { pageId } = params;
+// POST → Increment like count
+export async function POST(req: NextRequest, context: Params) {
+  const { pageId } = await context.params;
 
   if (!pageId) {
-    return new Response(
-      JSON.stringify({ success: false, error: "Missing pageId" }),
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: 'Missing pageId' }, { status: 400 });
   }
 
   try {
-    const body = await req.json();
-    const userHash = body.user_hash;
-
-    if (!userHash) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Missing user_hash" }),
-        { status: 400 }
-      );
-    }
-
-    // Insert page into page_stats if it doesn't exist
-    await pool.query(
-      'INSERT INTO page_stats (page_id) VALUES ($1) ON CONFLICT DO NOTHING',
+    const result = await pool.query(
+      `
+      INSERT INTO page_stats (page_id, like_count)
+      VALUES ($1, 1)
+      ON CONFLICT (page_id)
+      DO UPDATE SET like_count = page_stats.like_count + 1,
+                    updated_at = NOW()
+      RETURNING page_id, like_count, updated_at
+      `,
       [pageId]
     );
 
-    // Try to insert a like (unique by user_hash and page_id)
-    const likeResult = await pool.query(
-      `INSERT INTO page_likes (page_id, user_hash)
-       VALUES ($1, $2)
-       ON CONFLICT (page_id, user_hash) DO NOTHING
-       RETURNING *`,
-      [pageId, userHash]
-    );
-
-    // Get updated like count
-    const countResult = await pool.query(
-      'SELECT COUNT(*) AS like_count FROM page_likes WHERE page_id = $1',
-      [pageId]
-    );
-
-    const likeCount = parseInt(countResult.rows[0].like_count, 10);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        page_id: pageId,
-        liked: likeResult.rowCount > 0, // true if this POST added a like
-        like_count: likeCount,
-      }),
-      { status: 200 }
-    );
-  } catch (err) {
-    console.error("POST /api/likes error:", err);
-    return new Response(
-      JSON.stringify({ success: false, error: "Database error" }),
+    return NextResponse.json({ success: true, page: result.rows[0] });
+  } catch (error) {
+    console.error('Error in POST /api/likes/[pageId]:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal error', details: (error as Error).message },
       { status: 500 }
     );
   }
 }
 
-// OPTIONS: Handle CORS preflight requests
+// OPTIONS → CORS
 export async function OPTIONS() {
-  return new Response(null, { status: 204 });
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'Content-Type, X-CSRF-Token, X-Requested-With, Accept',
+    },
+  });
 }
+
