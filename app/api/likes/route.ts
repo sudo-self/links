@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  connectionString: process.env.likes_POSTGRES_URL || process.env.POSTGRES_URL,
+  connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL,
   ssl: {
     rejectUnauthorized: false
   }
@@ -10,8 +10,10 @@ const pool = new Pool({
 
 export async function GET() {
   try {
+
     await pool.query('SELECT 1');
     
+
     const result = await pool.query(
       'SELECT page_id, like_count, updated_at FROM page_stats ORDER BY like_count DESC LIMIT 10'
     );
@@ -25,7 +27,7 @@ export async function GET() {
     console.error('Error in likes API:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Internal server error',
+      error: 'Database connection error',
       details: (error as Error).message
     }, { status: 500 });
   }
