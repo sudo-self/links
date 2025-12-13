@@ -817,6 +817,8 @@ export default function Home() {
       loading="lazy"
     />
   </div>
+</div>
+  
 
   <div className="content">
     <div className="links-section">
