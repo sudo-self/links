@@ -760,135 +760,163 @@ export default function Home() {
         </>
       )}
 
-      {/* Main Content */}
-      <div className="container">
-<header>
-  <div className="profile-pic">
-    <img
-      src="/apple-touch-icon.png"
-      alt="Jesse Roper Profile Photo"
+{/* Main Content */}
+<div className="container">
+  <header>
+    <div className="profile-pic">
+      <img
+        src="/apple-touch-icon.png"
+        alt="Jesse Roper Profile Photo"
+        loading="lazy"
+      />
+    </div>
+
+    <h1>Jesse Roper</h1>
+    <br />
+    <div className="code-badge">Software Engineer</div>
+    <br />
+    <br />
+    
+    <div className="education" style={{ textAlign: 'center' }}>
+      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <i className="fas fa-graduation-cap" aria-hidden="true"></i>
+        <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <i className="fa-solid fa-award" aria-hidden="true"></i>
+        <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
+      </div>
+    </div>
+  </header>
+
+  {/* AI Iframe Section */}
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    margin: '30px 0 40px 0',
+    padding: '20px',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))',
+    borderRadius: '16px',
+    border: '1px solid rgba(226, 232, 240, 0.8)',
+    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)'
+  }}>
+    <iframe 
+      name="aiJesse" 
+      width="500" 
+      height="500" 
+      src="https://ai.jessejesse.com" 
+      title="AI Assistant - Jesse Roper"
+      scrolling="no"
+      style={{
+        border: '2px solid #ffffff',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+      }}
+      allow="camera; microphone"
       loading="lazy"
     />
   </div>
 
-  <h1>Jesse Roper</h1>
-  <br />
-  <div className="code-badge">Software Engineer</div>
-  <br />
-  <br />
-  
-  <div className="education" style={{ textAlign: 'center' }}>
-    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <i className="fas fa-graduation-cap" aria-hidden="true"></i>
-      <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
-    </div>
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <i className="fa-solid fa-award" aria-hidden="true"></i>
-      <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
+  <div className="content">
+    <div className="links-section">
+      <h4 className="section-title"><i className="fas fa-link"></i>Social Links</h4>
+
+      <a
+        href="https://x.com/lightfighter719"
+        className="link-card"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          opacity: linkCardsVisible ? 1 : 0,
+          transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)'
+        }}
+        aria-label="Visit Jesse's X (Twitter) profile"
+      >
+        <div className="link-icon">
+          <i className="fa-solid fa-x"></i>
+        </div>
+        <div className="link-text">
+          <div className="link-title">@Lightfighter719</div>
+          <div className="link-description">Find me on X</div>
+        </div>
+        <div className="link-arrow">
+          <i className="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <a
+        href="https://linkedin.com/in/jesse-roper"
+        className="link-card"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          opacity: linkCardsVisible ? 1 : 0,
+          transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
+          transitionDelay: '0.1s'
+        }}
+        aria-label="Visit Jesse's LinkedIn profile"
+      >
+        <div className="link-icon">
+          <i className="fab fa-linkedin-in"></i>
+        </div>
+        <div className="link-text">
+          <div className="link-title">LinkedIn Profile</div>
+          <div className="link-description">Professional Networking</div>
+        </div>
+        <div className="link-arrow">
+          <i className="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <a
+        href="https://github.com/sudo-self"
+        className="link-card"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          opacity: linkCardsVisible ? 1 : 0,
+          transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
+          transitionDelay: '0.2s'
+        }}
+        aria-label="Visit Jesse's GitHub profile"
+      >
+        <div className="link-icon">
+          <i className="fab fa-github"></i>
+        </div>
+        <div className="link-text">
+          <div className="link-title">GitHub Portfolio</div>
+          <div className="link-description">Software projects</div>
+        </div>
+        <div className="link-arrow">
+          <i className="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <a
+        href="mailto:jesse@jessejesse.com"
+        className="link-card"
+        style={{
+          opacity: linkCardsVisible ? 1 : 0,
+          transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
+          transitionDelay: '0.3s'
+        }}
+        aria-label="Email Jesse"
+      >
+        <div className="link-icon">
+          <i className="fas fa-envelope"></i>
+        </div>
+        <div className="link-text">
+          <div className="link-title">Contact Me</div>
+          <div className="link-description">Email inquiries</div>
+        </div>
+        <div className="link-arrow">
+          <i className="fas fa-arrow-right"></i>
+        </div>
+      </a>
     </div>
   </div>
-</header>
-        <iframe name="aiJesse" width="500px" height="500px" src="https://ai.jessejesse.com" scrolling="no" marginwidth="0" marginheight="0" style="border:2px solid #ffffff;"></iframe>
-
-        <div className="content">
-          <div className="links-section">
-            <h4 className="section-title"><i className="fas fa-link"></i>Social Links</h4>
-
-            <a
-              href="https://x.com/lightfighter719"
-              className="link-card"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                opacity: linkCardsVisible ? 1 : 0,
-                transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)'
-              }}
-              aria-label="Visit Jesse's X (Twitter) profile"
-            >
-              <div className="link-icon">
-                <i className="fa-solid fa-x"></i>
-              </div>
-              <div className="link-text">
-                <div className="link-title">@Lightfighter719</div>
-                <div className="link-description">Find me on X</div>
-              </div>
-              <div className="link-arrow">
-                <i className="fas fa-arrow-right"></i>
-              </div>
-            </a>
-
-            <a
-              href="https://linkedin.com/in/jesse-roper"
-              className="link-card"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                opacity: linkCardsVisible ? 1 : 0,
-                transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
-                transitionDelay: '0.1s'
-              }}
-              aria-label="Visit Jesse's LinkedIn profile"
-            >
-              <div className="link-icon">
-                <i className="fab fa-linkedin-in"></i>
-              </div>
-              <div className="link-text">
-                <div className="link-title">LinkedIn Profile</div>
-                <div className="link-description">Professional Networking</div>
-              </div>
-              <div className="link-arrow">
-                <i className="fas fa-arrow-right"></i>
-              </div>
-            </a>
-
-            <a
-              href="https://github.com/sudo-self"
-              className="link-card"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                opacity: linkCardsVisible ? 1 : 0,
-                transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
-                transitionDelay: '0.2s'
-              }}
-              aria-label="Visit Jesse's GitHub profile"
-            >
-              <div className="link-icon">
-                <i className="fab fa-github"></i>
-              </div>
-              <div className="link-text">
-                <div className="link-title">GitHub Portfolio</div>
-                <div className="link-description">Software projects</div>
-              </div>
-              <div className="link-arrow">
-                <i className="fas fa-arrow-right"></i>
-              </div>
-            </a>
-
-            <a
-              href="mailto:jesse@jessejesse.com"
-              className="link-card"
-              style={{
-                opacity: linkCardsVisible ? 1 : 0,
-                transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
-                transitionDelay: '0.3s'
-              }}
-              aria-label="Email Jesse"
-            >
-              <div className="link-icon">
-                <i className="fas fa-envelope"></i>
-              </div>
-              <div className="link-text">
-                <div className="link-title">Contact Me</div>
-                <div className="link-description">Email inquiries</div>
-              </div>
-              <div className="link-arrow">
-                <i className="fas fa-arrow-right"></i>
-              </div>
-            </a>
-          </div>
-        </div>
-
+</div>
         <div className="education">
           <i className="fas fa-globe"></i>&nbsp;
           Developer Badges
