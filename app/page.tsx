@@ -539,7 +539,7 @@ export default function Home() {
     }
   }, [showEventModal]);
 
-return (
+  return (
     <>
       {/* Top Controls */}
       <div className="top-left-controls">
@@ -623,63 +623,7 @@ return (
             </div>
 
             <div className="calendar-days" id="calendarDays">
-              {(() => {
-                const year = currentCalendarDate.getFullYear();
-                const month = currentCalendarDate.getMonth();
-                const today = new Date();
-                
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                const daysInMonth = lastDay.getDate();
-                const firstDayIndex = firstDay.getDay();
-                
-                const days = [];
-                
-                // Previous month days
-                for (let i = 0; i < firstDayIndex; i++) {
-                  const prevMonthDay = new Date(year, month, 0 - (firstDayIndex - i - 1)).getDate();
-                  days.push(
-                    <div key={`prev-${i}`} className="calendar-day other-month">
-                      {prevMonthDay}
-                    </div>
-                  );
-                }
-                
-                // Current month days
-                for (let i = 1; i <= daysInMonth; i++) {
-                  const isToday = year === today.getFullYear() && month === today.getMonth() && i === today.getDate();
-                  const isSelected = year === selectedDate.getFullYear() && month === selectedDate.getMonth() && i === selectedDate.getDate();
-                  
-                  days.push(
-                    <div
-                      key={`current-${i}`}
-                      className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                      onClick={() => {
-                        setSelectedDate(new Date(year, month, i));
-                        setShowCalendar(false);
-                        setShowEventModal(true);
-                      }}
-                    >
-                      {i}
-                    </div>
-                  );
-                }
-                
-                // Next month days
-                const totalCells = 42;
-                const cellsFilled = firstDayIndex + daysInMonth;
-                const remainingCells = totalCells - cellsFilled;
-                
-                for (let i = 1; i <= remainingCells; i++) {
-                  days.push(
-                    <div key={`next-${i}`} className="calendar-day other-month">
-                      {i}
-                    </div>
-                  );
-                }
-                
-                return days;
-              })()}
+              {generateCalendarDays()}
             </div>
 
             <div className="calendar-footer">
@@ -818,61 +762,32 @@ return (
 
       {/* Main Content */}
       <div className="container">
-        <header>
-          <div className="profile-pic">
-            <img
-              src="/apple-touch-icon.png"
-              alt="Jesse Roper Profile Photo"
-              loading="lazy"
-            />
-          </div>
+<header>
+  <div className="profile-pic">
+    <img
+      src="/apple-touch-icon.png"
+      alt="Jesse Roper Profile Photo"
+      loading="lazy"
+    />
+  </div>
 
-          <h1>Jesse Roper</h1>
-          <br />
-          <div className="code-badge">Software Engineer</div>
-          <br />
-          <br />
-          
-          <div className="education" style={{ textAlign: 'center' }}>
-            <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <i className="fas fa-graduation-cap" aria-hidden="true"></i>
-              <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <i className="fa-solid fa-award" aria-hidden="true"></i>
-              <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
-            </div>
-          </div>
-        </header>
-
-        {/* AI Iframe Section */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          margin: '30px 0 40px 0',
-          padding: '20px',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))',
-          borderRadius: '16px',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)'
-        }}>
-          <iframe 
-            name="aiJesse" 
-            width="500" 
-            height="500" 
-            src="https://ai.jessejesse.com" 
-            title="AI Assistant - Jesse Roper"
-            scrolling="no"
-            style={{
-              border: '2px solid #ffffff',
-              borderRadius: '12px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-            }}
-            allow="camera; microphone"
-            loading="lazy"
-          />
-        </div>
+  <h1>Jesse Roper</h1>
+  <br />
+  <div className="code-badge">Software Engineer</div>
+  <br />
+  <br />
+  
+  <div className="education" style={{ textAlign: 'center' }}>
+    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <i className="fas fa-graduation-cap" aria-hidden="true"></i>
+      <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <i className="fa-solid fa-award" aria-hidden="true"></i>
+      <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
+    </div>
+  </div>
+</header>
 
         <div className="content">
           <div className="links-section">
@@ -970,8 +885,8 @@ return (
                 <i className="fas fa-arrow-right"></i>
               </div>
             </a>
-          </div> {/* ← CLOSING links-section div */}
-        </div> {/* ← CLOSING content div */}
+          </div>
+        </div>
 
         <div className="education">
           <i className="fas fa-globe"></i>&nbsp;
@@ -996,12 +911,13 @@ return (
                 <div className="badge-tooltip">{badge.alt}</div>
               </div>
             ))}
-          </div> 
+          </div>
 
           <div className="footer-likes">
             <span id="footerLikeCount">{currentLikes}</span> visitors liked this page
           </div>
         </footer>
-      </div> {/* ← CLOSING container div */}
-    </> {/* ← CLOSING React Fragment */}
+      </div>
+    </>
   );
+}
