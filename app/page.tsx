@@ -871,7 +871,7 @@ export const handleShare = async () => {
               </div>
               <div className="link-text">
                 <div className="link-title">LinkedIn Profile</div>
-                <div className="link-description">Professional Networking</div>
+                <div className="link-description">Leads & Networking</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
