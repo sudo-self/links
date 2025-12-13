@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { metadata } from './siteMetadata';
 import './globals.css';
 
 // TypeScript interfaces
@@ -51,62 +50,20 @@ export default function Home() {
 
   // Configuration
   const PAGE_ID = 'jesse-roper';
-  
   const badges: Badge[] = [
-   {
-            src: "https://github.com/sudo-self/sudo-self/assets/119916323/591566e1-cd9a-445c-9d0b-82ca60b4c37f",
-            alt: "Pull Shark",
-          },
-          {
-            src: "https://github.com/sudo-self/sudo-self/assets/119916323/9d692e82-ae9f-4703-9355-74a0e8bebbfe",
-            alt: "Quickdraw",
-          },
-          {
-            src: "https://github.com/sudo-self/sudo-self/assets/119916323/5c4f6626-7c67-4277-97a6-b67b77d08953",
-            alt: "Starstruck",
-          },
-          {
-            src: "https://github.com/sudo-self/sudo-self/assets/119916323/f135932f-d44f-4bb9-b72a-ac23219112bc",
-            alt: "Yolo",
-          },
-          {
-            src: "https://github.com/user-attachments/assets/4962670c-d88b-4bfd-8697-753044e16c33",
-            alt: "Dev.to",
-          },
-          {
-            src: "https://github.com/user-attachments/assets/3aa8db8c-ec26-4248-85a2-a147c1b74e06",
-            alt: "Dev.to",
-          },
-          {
-            src: "https://github.com/user-attachments/assets/a3a9c3b1-4389-4ccb-a6d7-c48ef81ea222",
-            alt: "Dev.to",
-          },
-          {
-            src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/Android%20studio.svg",
-            alt: "Android Studio",
-          },
-          {
-            src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/gdeveloper.svg",
-            alt: "GDE Badge",
-          },
-          {
-            src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/firebase.svg",
-            alt: "Firebase Badge",
-          },
-          {
-            src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/Image%205.png",
-            alt: "dev.to",
-          },
-          {
-            src: "https://avatars.githubusercontent.com/u/119916323?v=4",
-            alt: "GitHub Profile",
-          },
-        ];
-
-
-          
-
- 
+    { src: "https://github.com/sudo-self/sudo-self/assets/119916323/591566e1-cd9a-445c-9d0b-82ca60b4c37f", alt: "Pull Shark" },
+    { src: "https://github.com/sudo-self/sudo-self/assets/119916323/9d692e82-ae9f-4703-9355-74a0e8bebbfe", alt: "Quickdraw" },
+    { src: "https://github.com/sudo-self/sudo-self/assets/119916323/5c4f6626-7c67-4277-97a6-b67b77d08953", alt: "Starstruck" },
+    { src: "https://github.com/sudo-self/sudo-self/assets/119916323/f135932f-d44f-4bb9-b72a-ac23219112bc", alt: "Yolo" },
+    { src: "https://github.com/user-attachments/assets/4962670c-d88b-4bfd-8697-753044e16c33", alt: "Dev.to" },
+    { src: "https://github.com/user-attachments/assets/3aa8db8c-ec26-4248-85a2-a147c1b74e06", alt: "Dev.to" },
+    { src: "https://github.com/user-attachments/assets/a3a9c3b1-4389-4ccb-a6d7-c48ef81ea222", alt: "Dev.to" },
+    { src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/Android%20studio.svg", alt: "Android Studio" },
+    { src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/gdeveloper.svg", alt: "GDE Badge" },
+    { src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/firebase.svg", alt: "Firebase Badge" },
+    { src: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/Image%205.png", alt: "dev.to" },
+    { src: "https://avatars.githubusercontent.com/u/119916323?v=4", alt: "GitHub Profile" },
+  ];
 
   // Theme toggle
   useEffect(() => {
@@ -152,184 +109,179 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-
+  // Link cards animation
   useEffect(() => {
     setLinkCardsVisible(true);
   }, []);
 
-
-const fetchLikeCount = useCallback(async () => {
-  try {
-    const response = await fetch(`/api/likes/${PAGE_ID}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      
-      if (data.success) {
-   
-        let likes = 0;
-        let hasLiked = false;
+    // Like functionality - CLEAN VERSION
+    const fetchLikeCount = useCallback(async () => {
+      try {
+        const response = await fetch(`/api/likes/${PAGE_ID}`);
         
-        if (data.likes !== undefined) {
-          likes = data.likes;
-        } else if (data.page?.like_count !== undefined) {
-          likes = data.page.like_count;
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success) {
+            // Handle different response structures
+            let likes = 0;
+            let hasLiked = false;
+            
+            if (data.likes !== undefined) {
+              likes = data.likes;
+            } else if (data.page?.like_count !== undefined) {
+              likes = data.page.like_count;
+            }
+            
+            if (data.hasLiked !== undefined) {
+              hasLiked = data.hasLiked;
+            } else if (data.page?.hasLiked !== undefined) {
+              hasLiked = data.page.hasLiked;
+            }
+            
+            setCurrentLikes(likes);
+            setIsLiked(hasLiked);
+          } else {
+            // API returned success: false
+            fallbackToLocalStorage();
+          }
+        } else {
+          // HTTP error
+          fallbackToLocalStorage();
         }
-        
-        if (data.hasLiked !== undefined) {
-          hasLiked = data.hasLiked;
-        } else if (data.page?.hasLiked !== undefined) {
-          hasLiked = data.page.hasLiked;
-        }
-        
-        setCurrentLikes(likes);
-        setIsLiked(hasLiked);
-      } else {
-    
+      } catch (error) {
+        // Network error
         fallbackToLocalStorage();
       }
-    } else {
-    
-      fallbackToLocalStorage();
-    }
-  } catch (error) {
+    }, []);
 
-    fallbackToLocalStorage();
-  }
-}, []);
+    // Helper function for localStorage fallback
+    const fallbackToLocalStorage = () => {
+      const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
+      const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
+      setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
+      setIsLiked(savedLiked === 'true');
+    };
 
-
-useEffect(() => {
-  fetchLikeCount();
-}, [fetchLikeCount]);
-
-const fallbackToLocalStorage = () => {
-  const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
-  const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
-  setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
-  setIsLiked(savedLiked === 'true');
-};
-
-const addLike = async () => {
-  if (isLiked) return;
-  
-  // Optimistic update
-  setIsLiked(true);
-  const newLikes = currentLikes + 1;
-  setCurrentLikes(newLikes);
-  
-
-  showNotification({ type: 'like' });
-  
-
-  localStorage.setItem(`liked-${PAGE_ID}`, 'true');
-  localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
-  
-
-  try {
-    const response = await fetch(`/api/likes/${PAGE_ID}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
+    const addLike = async () => {
+      if (isLiked) return;
       
-      if (data.success) {
-        
-        let apiLikes = newLikes;
-        let apiHasLiked = true;
-        
-        if (data.likes !== undefined) {
-          apiLikes = data.likes;
-        } else if (data.page?.like_count !== undefined) {
-          apiLikes = data.page.like_count;
-        }
-        
-        if (data.hasLiked !== undefined) {
-          apiHasLiked = data.hasLiked;
-        } else if (data.page?.hasLiked !== undefined) {
-          apiHasLiked = data.page.hasLiked;
-        }
-        
-        setCurrentLikes(apiLikes);
-        setIsLiked(apiHasLiked);
-        
-
-        localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
-      }
-    }
-  } catch (error) {
-
-    console.error('Error adding like:', error);
-  }
-};
-
-const removeLike = async () => {
-  if (!isLiked) return;
-  
-
-  setIsLiked(false);
-  const newLikes = Math.max(0, currentLikes - 1);
-  setCurrentLikes(newLikes);
-  
-
-  localStorage.removeItem(`liked-${PAGE_ID}`);
-  localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
-  
-
-  try {
-    const response = await fetch(`/api/likes/${PAGE_ID}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
+      // Optimistic update
+      setIsLiked(true);
+      const newLikes = currentLikes + 1;
+      setCurrentLikes(newLikes);
       
-      if (data.success) {
-
-        let apiLikes = newLikes;
-        let apiHasLiked = false;
+      // Show notification
+      showNotification({ type: 'like' });
+      
+      // Save to localStorage as fallback
+      localStorage.setItem(`liked-${PAGE_ID}`, 'true');
+      localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+      
+      // Send to API
+      try {
+        const response = await fetch(`/api/likes/${PAGE_ID}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include'
+          },
+        });
         
-        if (data.likes !== undefined) {
-          apiLikes = data.likes;
-        } else if (data.page?.like_count !== undefined) {
-          apiLikes = data.page.like_count;
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update with data from API response
+            let apiLikes = newLikes;
+            let apiHasLiked = true;
+            
+            if (data.likes !== undefined) {
+              apiLikes = data.likes;
+            } else if (data.page?.like_count !== undefined) {
+              apiLikes = data.page.like_count;
+            }
+            
+            if (data.hasLiked !== undefined) {
+              apiHasLiked = data.hasLiked;
+            } else if (data.page?.hasLiked !== undefined) {
+              apiHasLiked = data.page.hasLiked;
+            }
+            
+            setCurrentLikes(apiLikes);
+            setIsLiked(apiHasLiked);
+            
+            // Update localStorage with correct value
+            localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
+          }
         }
-        
-        if (data.hasLiked !== undefined) {
-          apiHasLiked = data.hasLiked;
-        } else if (data.page?.hasLiked !== undefined) {
-          apiHasLiked = data.page.hasLiked;
-        }
-        
-        setCurrentLikes(apiLikes);
-        setIsLiked(apiHasLiked);
-        
-
-        if (apiLikes === 0) {
-          localStorage.removeItem(`likes-${PAGE_ID}`);
-        } else {
-          localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
-        }
-      } else if (data.error === 'User has not liked this page') {
-
-        setIsLiked(false);
-        setCurrentLikes(newLikes);
+      } catch (error) {
+        // Network error - keep localStorage as fallback
+        console.error('Error adding like:', error);
       }
-    }
-  } catch (error) {
-    console.error('Error removing like:', error);
-  }
-};
-  
+    };
+
+    const removeLike = async () => {
+      if (!isLiked) return;
+      
+      // Optimistic update
+      setIsLiked(false);
+      const newLikes = Math.max(0, currentLikes - 1);
+      setCurrentLikes(newLikes);
+      
+      // Remove from localStorage
+      localStorage.removeItem(`liked-${PAGE_ID}`);
+      localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+      
+      // Send to API
+      try {
+        const response = await fetch(`/api/likes/${PAGE_ID}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include'
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update with data from API response
+            let apiLikes = newLikes;
+            let apiHasLiked = false;
+            
+            if (data.likes !== undefined) {
+              apiLikes = data.likes;
+            } else if (data.page?.like_count !== undefined) {
+              apiLikes = data.page.like_count;
+            }
+            
+            if (data.hasLiked !== undefined) {
+              apiHasLiked = data.hasLiked;
+            } else if (data.page?.hasLiked !== undefined) {
+              apiHasLiked = data.page.hasLiked;
+            }
+            
+            setCurrentLikes(apiLikes);
+            setIsLiked(apiHasLiked);
+            
+            // Update localStorage
+            if (apiLikes === 0) {
+              localStorage.removeItem(`likes-${PAGE_ID}`);
+            } else {
+              localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
+            }
+          } else if (data.error === 'User has not liked this page') {
+            // Revert optimistic update if API says user hasn't liked
+            setIsLiked(false);
+            setCurrentLikes(newLikes);
+          }
+        }
+      } catch (error) {
+        console.error('Error removing like:', error);
+      }
+    };
   // Notification system
   const showNotification = useCallback((notification: Notification) => {
     setNotification(notification);
@@ -338,67 +290,32 @@ const removeLike = async () => {
     }, 3000);
   }, []);
 
-
-  
-const handleShare = async () => {
-  try {
-    // Determine OpenGraph image safely
-    let ogImage: string | undefined;
-
-    if (Array.isArray(metadata.openGraph?.images)) {
-      const first = metadata.openGraph.images[0];
-      ogImage = typeof first === 'string' ? first : first?.url;
-    } else if (typeof metadata.openGraph?.images === 'string') {
-      ogImage = metadata.openGraph.images;
-    }
-
-    // Fallback if undefined
-    ogImage ??= `${window.location.origin}/icon.jpg`;
-
-    const shareData: ShareData = {
-      title: metadata.title ?? 'Jesse Roper - Software Engineer',
-      text: metadata.description ?? 'Professional portfolio and links',
-      url: window.location.href,
+  // Share functionality
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Jesse Roper - Software Engineer',
+      text: 'Check out Jesse Roper\'s professional portfolio and links',
+      url: window.location.href
     };
-
-    // Attach image if supported
-    if (navigator.canShare) {
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        showNotification({ type: 'share' });
+      }
+    } catch (err) {
+      console.log('Error sharing:', err);
       try {
-        const response = await fetch(ogImage);
-        if (response.ok) {
-          const blob = await response.blob();
-          const file = new File([blob], 'share-image.jpg', { type: blob.type });
-          if (navigator.canShare({ files: [file] })) {
-            shareData.files = [file];
-          }
-        }
-      } catch {
-        // ignore fetch errors
+        await navigator.clipboard.writeText(window.location.href);
+        showNotification({ type: 'share' });
+      } catch (clipboardErr) {
+        alert(`Share this link:\n${window.location.href}`);
       }
     }
+  };
 
-    // Use native share if available
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      showNotification({ type: 'share' });
-    }
-  } catch (err) {
-    console.error('Share failed:', err);
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      showNotification({ type: 'share' });
-    } catch {
-      alert(`Share this link:\n${window.location.href}`);
-    }
-  }
-};
-
-
-
-
-  
   // Calendar functions
   const generateCalendarDays = () => {
     const year = currentCalendarDate.getFullYear();
@@ -843,7 +760,7 @@ const handleShare = async () => {
 
         <div className="content">
           <div className="links-section">
-            <h2 className="section-title"><i className="fas fa-link"></i>Social Links</h2>
+            <h2 className="section-title"><i className="fas fa-link"></i>Links</h2>
 
             <a
               href="https://x.com/lightfighter719"
@@ -868,7 +785,7 @@ const handleShare = async () => {
             </a>
 
             <a
-              href="https://www.linkedin.com/in/jrsdevelopments/"
+              href="https://linkedin.com/in/jesse-roper"
               className="link-card"
               target="_blank"
               rel="noopener noreferrer"
@@ -883,7 +800,7 @@ const handleShare = async () => {
               </div>
               <div className="link-text">
                 <div className="link-title">LinkedIn Profile</div>
-                <div className="link-description">Leads & Networking</div>
+                <div className="link-description">Professional Networking</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
@@ -891,7 +808,7 @@ const handleShare = async () => {
             </a>
 
             <a
-              href="https://github.com/sudo-self/links"
+              href="https://github.com/sudo-self"
               className="link-card"
               target="_blank"
               rel="noopener noreferrer"
@@ -927,7 +844,7 @@ const handleShare = async () => {
               </div>
               <div className="link-text">
                 <div className="link-title">Contact Me</div>
-                <div className="link-description">Email to collab</div>
+                <div className="link-description">Email for inquiries or opportunities</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
@@ -961,9 +878,9 @@ const handleShare = async () => {
             ))}
           </div>
 
-        <div className="footer-likes">
-  <span id="footerLikeCount">{currentLikes}</span> visitors liked this page
-</div>
+          <div className="footer-likes">
+            <span id="footerLikeCount">{currentLikes}</span> visitors liked this page
+          </div>
         </footer>
       </div>
     </>
