@@ -339,17 +339,17 @@ const removeLike = async () => {
   }, []);
 
 
-export const handleShare = async () => {
+
+const handleShare = async () => {
   try {
     const ogImage = metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
 
     const shareData: any = {
       title: metadata.title ?? 'Jesse Roper - Software Engineer',
-      text: metadata.description ?? "Jesse Roper's portfolio and links",
+      text: metadata.description ?? "calendar events & links",
       url: window.location.href,
     };
 
-    // If the browser supports sharing files (images)
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       try {
         const response = await fetch(ogImage);
@@ -366,11 +366,9 @@ export const handleShare = async () => {
       }
     }
 
-    // Attempt to share
     if (navigator.share) {
       await navigator.share(shareData);
     } else {
-      // Fallback: copy URL to clipboard
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     }
@@ -384,6 +382,7 @@ export const handleShare = async () => {
     }
   }
 };
+
 
 
   
