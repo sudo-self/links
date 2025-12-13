@@ -1,4 +1,5 @@
 'use client';
+
 import { Poppins, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
 import { metadata as siteMetadata } from './siteMetadata'; 
@@ -16,10 +17,19 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const ogImage =
-    Array.isArray(siteMetadata.openGraph?.images)
-      ? siteMetadata.openGraph?.images[0]?.url
-      : siteMetadata.openGraph?.images?.url;
+
+  const ogImage = (() => {
+    const images = siteMetadata.openGraph?.images;
+
+    if (Array.isArray(images)) {
+      const first = images[0];
+      return typeof first === 'string' ? first : first?.url;
+    } else if (typeof images === 'string') {
+      return images;
+    }
+
+    return '/icon.jpg'; 
+  })();
 
   return (
     <html lang="en" className={`${poppins.variable} ${sourceCodePro.variable}`}>
@@ -28,7 +38,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-     
         <meta property="og:type" content={siteMetadata.openGraph?.type ?? 'website'} />
         <meta property="og:title" content={siteMetadata.title} />
         <meta property="og:description" content={siteMetadata.description} />
@@ -40,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="twitter:description" content={siteMetadata.description} />
         <meta name="twitter:image" content={ogImage} />
 
-    
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f0c29" media="(prefers-color-scheme: dark)" />
       </head>
@@ -48,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
 
 
 
