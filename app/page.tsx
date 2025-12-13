@@ -760,67 +760,67 @@ export default function Home() {
         </>
       )}
 
-  {/* Main Content */}
-    <div className="container">
-      <header>
-        <div className="profile-pic">
-          <img
-            src="/apple-touch-icon.png"
-            alt="Jesse Roper Profile Photo"
-            loading="lazy"
-          />
-        </div>
+{/* Main Content */}
+<div className="container">
+  <header>
+    <div className="profile-pic">
+      <img
+        src="/apple-touch-icon.png"
+        alt="Jesse Roper Profile Photo"
+        loading="lazy"
+      />
+    </div>
 
-        <h1>Jesse Roper</h1>
-        <br />
-        <div className="code-badge">Software Engineer</div>
-        <br />
-        <br />
-        
-        <div className="education" style={{ textAlign: 'center' }}>
-          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <i className="fas fa-graduation-cap" aria-hidden="true"></i>
-            <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <i className="fa-solid fa-award" aria-hidden="true"></i>
-            <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
-          </div>
-        </div>
-      </header>
-
-      {/* AI Iframe Section */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        margin: '30px 0 40px 0',
-        padding: '20px',
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))',
-        borderRadius: '16px',
-        border: '1px solid rgba(226, 232, 240, 0.8)',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)'
-      }}>
-        <iframe 
-          name="aiJesse" 
-          width="500" 
-          height="500" 
-          src="https://ai.jessejesse.com" 
-          title="AI Assistant - Jesse Roper"
-          scrolling="no"
-          style={{
-            border: '2px solid #ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-          }}
-          allow="camera; microphone"
-          loading="lazy"
-        />
+    <h1>Jesse Roper</h1>
+    <br />
+    <div className="code-badge">Software Engineer</div>
+    <br />
+    <br />
+    
+    <div className="education" style={{ textAlign: 'center' }}>
+      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <i className="fas fa-graduation-cap" aria-hidden="true"></i>
+        <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
       </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <i className="fa-solid fa-award" aria-hidden="true"></i>
+        <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
+      </div>
+    </div>
+  </header>
 
-      <div className="content">
-        <div className="links-section">
-          <h4 className="section-title"><i className="fas fa-link"></i>Social Links</h4>
+  {/* AI Iframe Section */}
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    margin: '30px 0 40px 0',
+    padding: '20px',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))',
+    borderRadius: '16px',
+    border: '1px solid rgba(226, 232, 240, 0.8)',
+    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)'
+  }}>
+    <iframe 
+      name="aiJesse" 
+      width="500" 
+      height="500" 
+      src="https://ai.jessejesse.com" 
+      title="AI Assistant - Jesse Roper"
+      scrolling="no"
+      style={{
+        border: '2px solid #ffffff',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+      }}
+      allow="camera; microphone"
+      loading="lazy"
+    />
+  </div>
+
+  <div className="content">
+    <div className="links-section">
+      <h4 className="section-title"><i className="fas fa-link"></i>Social Links</h4>
 
       <a
         href="https://x.com/lightfighter719"
@@ -914,38 +914,38 @@ export default function Home() {
           <i className="fas fa-arrow-right"></i>
         </div>
       </a>
-    </div>
+    </div> {/* ← CLOSING links-section div */}
+  </div> {/* ← CLOSING content div */}
+
+  <div className="education">
+    <i className="fas fa-globe"></i>&nbsp;
+    Developer Badges
   </div>
-</div>
-        <div className="education">
-        <i className="fas fa-globe"></i>&nbsp;
-        Developer Badges
+
+ <footer>
+  <div className="developer-badges-row" id="developerBadgesRow">
+    {badges.map((badge, index) => (
+      <div key={index} className="badge-item" title={badge.alt}>
+        <img
+          src={badge.src}
+          alt={badge.alt}
+          title={badge.alt}
+          loading="lazy"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2U8L3RleHQ+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuN2VtIj5Ob3QgRm91bmQ8L3RleHQ+PC9zdmc+';
+            target.alt = 'Image not available';
+          }}
+        />
+        <div className="badge-tooltip">{badge.alt}</div>
       </div>
+    ))}
+  </div> 
 
-      <footer>
-        <div className="developer-badges-row" id="developerBadgesRow">
-          {badges.map((badge, index) => (
-            <div key={index} className="badge-item" title={badge.alt}>
-              <img
-                src={badge.src}
-                alt={badge.alt}
-                title={badge.alt}
-                loading="lazy"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2U8L3RleHQ+PHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuN2VtIj5Ob3QgRm91bmQ8L3RleHQ+PC9zdmc+';
-                  target.alt = 'Image not available';
-                }}
-              />
-              <div className="badge-tooltip">{badge.alt}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="footer-likes">
-          <span id="footerLikeCount">{currentLikes}</span> visitors liked this page
-        </div>
-      </footer>
-    </div>
-  </>
+  <div className="footer-likes">
+    <span id="footerLikeCount">{currentLikes}</span> visitors liked this page
+  </div>
+</footer>
+</div> 
+</> 
 );
