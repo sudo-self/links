@@ -114,90 +114,116 @@ export default function Home() {
     setLinkCardsVisible(true);
   }, []);
 
-  // Like functionality
-  const fetchLikeCount = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/likes/${PAGE_ID}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setCurrentLikes(data.likes || 0);
-          setIsLiked(data.hasLiked || false);
+// Like functionality - FIXED VERSION
+const fetchLikeCount = useCallback(async () => {
+  try {
+    const response = await fetch(`/api/likes/${PAGE_ID}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // FIXED: Use data.likes instead of data.page.like_count
+        // FIXED: Use data.hasLiked instead of data.page.hasLiked
+        setCurrentLikes(data.likes || 0);
+        setIsLiked(data.hasLiked || false);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching like count:', error);
+    // Fallback to localStorage
+    const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
+    const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
+    setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
+    setIsLiked(savedLiked === 'true');
+  }
+}, []);
+
+const addLike = async () => {
+  if (isLiked) return;
+  
+  // Optimistic update
+  setIsLiked(true);
+  const newLikes = currentLikes + 1;
+  setCurrentLikes(newLikes);
+  
+  // Show notification
+  showNotification({ type: 'like' });
+  
+  // Save to localStorage as fallback
+  localStorage.setItem(`liked-${PAGE_ID}`, 'true');
+  localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+  
+  // Send to API
+  try {
+    const response = await fetch(`/api/likes/${PAGE_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // FIXED: Update with data from API response
+        setCurrentLikes(data.likes || newLikes);
+        setIsLiked(data.hasLiked || true);
+        
+        // Update localStorage with correct value
+        localStorage.setItem(`likes-${PAGE_ID}`, data.likes.toString());
+      }
+    } else {
+      // If API fails, revert optimistic update
+      console.error('API error:', await response.text());
+      setIsLiked(false);
+      setCurrentLikes(currentLikes);
+    }
+  } catch (error) {
+    console.error('Error adding like:', error);
+    // Keep using localStorage as fallback
+  }
+};
+
+const removeLike = async () => {
+  if (!isLiked) return;
+  
+  // Optimistic update
+  setIsLiked(false);
+  const newLikes = Math.max(0, currentLikes - 1);
+  setCurrentLikes(newLikes);
+  
+  // Remove from localStorage
+  localStorage.removeItem(`liked-${PAGE_ID}`);
+  localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+  
+  // Send to API
+  try {
+    const response = await fetch(`/api/likes/${PAGE_ID}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // FIXED: Update with data from API response
+        setCurrentLikes(data.likes || newLikes);
+        setIsLiked(data.hasLiked || false);
+        
+        // Update localStorage
+        if (data.likes === 0) {
+          localStorage.removeItem(`likes-${PAGE_ID}`);
+        } else {
+          localStorage.setItem(`likes-${PAGE_ID}`, data.likes.toString());
         }
       }
-    } catch (error) {
-      console.error('Error fetching like count:', error);
-      const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
-      const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
-      setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
-      setIsLiked(savedLiked === 'true');
+    } else {
+      // If API fails, revert optimistic update
+      console.error('API error:', await response.text());
+      setIsLiked(true);
+      setCurrentLikes(currentLikes);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchLikeCount();
-  }, [fetchLikeCount]);
-
-  const addLike = async () => {
-    if (isLiked) return;
-    
-    // Optimistic update
-    setIsLiked(true);
-    setCurrentLikes(prev => prev + 1);
-    
-    // Show notification
-    showNotification({ type: 'like' });
-    
-    // Save to localStorage as fallback
-    localStorage.setItem(`liked-${PAGE_ID}`, 'true');
-    localStorage.setItem(`likes-${PAGE_ID}`, (currentLikes + 1).toString());
-    
-    // Send to API
-    try {
-      const response = await fetch(`/api/likes/${PAGE_ID}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setCurrentLikes(data.likes || currentLikes + 1);
-        }
-      }
-    } catch (error) {
-      console.error('Error adding like:', error);
-    }
-  };
-
-  const removeLike = async () => {
-    if (!isLiked) return;
-    
-    // Optimistic update
-    setIsLiked(false);
-    setCurrentLikes(prev => Math.max(0, prev - 1));
-    
-    // Remove from localStorage
-    localStorage.removeItem(`liked-${PAGE_ID}`);
-    localStorage.setItem(`likes-${PAGE_ID}`, (currentLikes - 1).toString());
-    
-    // Send to API
-    try {
-      const response = await fetch(`/api/likes/${PAGE_ID}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setCurrentLikes(data.likes || currentLikes - 1);
-        }
-      }
-    } catch (error) {
-      console.error('Error removing like:', error);
-    }
-  };
+  } catch (error) {
+    console.error('Error removing like:', error);
+  }
+};
 
   // Notification system
   const showNotification = useCallback((notification: Notification) => {
