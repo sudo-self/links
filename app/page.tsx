@@ -338,12 +338,17 @@ const removeLike = async () => {
     }, 3000);
   }, []);
 
+
+  
+
 const handleShare = async () => {
   try {
+
     const ogImage =
-      Array.isArray(metadata.openGraph?.images)
-        ? metadata.openGraph.images[0]?.url
-        : metadata.openGraph?.images?.url ?? `${window.location.origin}/icon.jpg`;
+      Array.isArray(metadata.openGraph?.images) && metadata.openGraph.images.length > 0
+        ? metadata.openGraph.images[0].url
+        : `${window.location.origin}/icon.jpg`;
+
 
     const shareData: any = {
       title: metadata.title ?? 'Jesse Roper - Software Engineer',
@@ -351,7 +356,7 @@ const handleShare = async () => {
       url: window.location.href,
     };
 
- 
+
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       try {
         const response = await fetch(ogImage);
@@ -362,66 +367,32 @@ const handleShare = async () => {
             shareData.files = [file];
           }
         }
-      } catch {
- 
+      } catch (err) {
+        console.warn('Failed to fetch share image, continuing without it.', err);
       }
     }
 
+ 
     if (navigator.share) {
       await navigator.share(shareData);
+      showNotification({ type: 'share' });
     } else {
    
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     }
   } catch (err) {
-    console.error('Error sharing:', err);
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      showNotification({ type: 'share' });
-    } catch {
-      alert(`Share this link:\n${window.location.href}`);
-    }
-  }
-};
-
-
-    // Attempt image sharing if supported
-    if (navigator.canShare) {
-      try {
-        const res = await fetch(ogImageUrl);
-        if (res.ok) {
-          const blob = await res.blob();
-          const file = new File([blob], 'share.jpg', { type: blob.type });
-
-          if (navigator.canShare({ files: [file] })) {
-            shareData.files = [file];
-          }
-        }
-      } catch {
-        // silently ignore image fetch issues
-      }
-    }
-
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      showNotification({ type: 'share' });
-    }
-  } catch (err) {
     console.error('Share failed:', err);
     try {
+   
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     } catch {
-      alert(`Share this link:\n${window.location.href}`);
+      
+      alert(`Share this link manually:\n${window.location.href}`);
     }
   }
 };
-
-
-
 
 
   
