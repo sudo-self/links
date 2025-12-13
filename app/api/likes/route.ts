@@ -5,23 +5,53 @@ export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/lib/init-db';
 
+
+function getUserHash(req: NextRequest): string {
+  const userHashCookie = req.cookies.get('user_hash')?.value;
+  if (userHashCookie) {
+    return userHashCookie;
+  }
+  return 'user_' + Math.random().toString(36).substr(2, 9);
+}
+
 export async function GET() {
-  const { rows } = await pool.query(
-    `SELECT page_id, like_count
-     FROM page_stats
-     ORDER BY like_count DESC
-     LIMIT 10`
-  );
-  return NextResponse.json(rows);
+  try {
+    const { rows } = await pool.query(
+      `SELECT page_id, like_count
+       FROM page_stats
+       ORDER BY like_count DESC
+       LIMIT 10`
+    );
+    
+    const response = NextResponse.json({ success: true, pages: rows });
+    
+  
+    if (!req.cookies.get('user_hash')) {
+      const userHash = getUserHash(req);
+      response.cookies.set('user_hash', userHash, {
+        maxAge: 60 * 60 * 24 * 365,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
+    
+    return response;
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const { pageId, userHash } = await req.json();
-
-  if (!pageId) return NextResponse.json({ error: 'Missing pageId' }, { status: 400 });
-  if (!userHash) return NextResponse.json({ error: 'Missing userHash' }, { status: 400 });
-
   try {
+    const { pageId } = await req.json();
+
+    if (!pageId) return NextResponse.json({ success: false, error: 'Missing pageId' }, { status: 400 });
+
+    const userHash = getUserHash(req);
+
     const result = await pool.query(
       `
       INSERT INTO page_stats (page_id, like_count)
@@ -33,7 +63,7 @@ export async function POST(req: NextRequest) {
       [pageId]
     );
 
-    // track per-user like (optional)
+  
     await pool.query(
       `
       INSERT INTO page_likes (page_id, user_hash)
@@ -43,10 +73,92 @@ export async function POST(req: NextRequest) {
       [pageId, userHash]
     );
 
-    return NextResponse.json(result.rows[0]);
+    const response = NextResponse.json({ 
+      success: true, 
+      page: result.rows[0],
+      hasLiked: true
+    });
+    
+  
+    if (!req.cookies.get('user_hash')) {
+      response.cookies.set('user_hash', userHash, {
+        maxAge: 60 * 60 * 24 * 365,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
+    
+    return response;
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const { pageId } = await req.json();
+
+    if (!pageId) return NextResponse.json({ success: false, error: 'Missing pageId' }, { status: 400 });
+
+    const userHash = getUserHash(req);
+
+
+    const existingLike = await pool.query(
+      `SELECT 1 FROM page_likes 
+       WHERE page_id = $1 AND user_hash = $2
+       LIMIT 1`,
+      [pageId, userHash]
+    );
+
+    if (existingLike.rows.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'User has not liked this page',
+        hasLiked: false
+      });
+    }
+
+ 
+    await pool.query(
+      `DELETE FROM page_likes 
+       WHERE page_id = $1 AND user_hash = $2`,
+      [pageId, userHash]
+    );
+
+  
+    const result = await pool.query(
+      `
+      UPDATE page_stats 
+      SET like_count = GREATEST(0, like_count - 1)
+      WHERE page_id = $1
+      RETURNING page_id, like_count
+      `,
+      [pageId]
+    );
+
+    const response = NextResponse.json({ 
+      success: true, 
+      page: result.rows[0],
+      hasLiked: false
+    });
+    
+   
+    if (!req.cookies.get('user_hash')) {
+      response.cookies.set('user_hash', userHash, {
+        maxAge: 60 * 60 * 24 * 365,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
+    
+    return response;
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
+  }
+}
