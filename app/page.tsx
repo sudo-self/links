@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { siteMetadata } from './siteMetadata';
+import { metadata } from './siteMetadata';
 import './globals.css';
 
 // TypeScript interfaces
@@ -339,31 +339,38 @@ const removeLike = async () => {
   }, []);
 
 
-
-const handleShare = async () => {
-  const ogImage =
-    siteMetadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
-
-  const shareData: any = {
-    title: siteMetadata.title ?? 'Jesse Roper - Software Engineer',
-    text: siteMetadata.description ?? "portfolio and links",
-    url: window.location.href,
-  };
-
+export const handleShare = async () => {
   try {
-    if (navigator.canShare && navigator.canShare({ files: [] })) {
-      const response = await fetch(ogImage);
-      const blob = await response.blob();
-      const file = new File([blob], 'share-image.jpg', { type: blob.type });
+    const ogImage = metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
 
-      if (navigator.canShare({ files: [file] })) {
-        shareData.files = [file];
+    const shareData: any = {
+      title: metadata.title ?? 'Jesse Roper - Software Engineer',
+      text: metadata.description ?? "Jesse Roper's portfolio and links",
+      url: window.location.href,
+    };
+
+    // If the browser supports sharing files (images)
+    if (navigator.canShare && navigator.canShare({ files: [] })) {
+      try {
+        const response = await fetch(ogImage);
+        if (response.ok) {
+          const blob = await response.blob();
+          const file = new File([blob], 'share-image.jpg', { type: blob.type });
+
+          if (navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        }
+      } catch (fetchError) {
+        console.warn('Could not fetch OG image for sharing:', fetchError);
       }
     }
 
+    // Attempt to share
     if (navigator.share) {
       await navigator.share(shareData);
     } else {
+      // Fallback: copy URL to clipboard
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     }
@@ -377,6 +384,7 @@ const handleShare = async () => {
     }
   }
 };
+
 
   
   // Calendar functions
