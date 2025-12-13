@@ -35,8 +35,6 @@ export const metadata: Metadata = {
     'React',
     'Next.js',
     'TypeScript',
-    'Cloud',
-    'AWS',
   ],
   authors: [{ name: 'Jesse Roper' }],
   creator: 'Jesse Roper',
@@ -112,32 +110,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${sourceCodePro.variable}`}>
       <head>
-        {/* Canonical */}
-        <link rel="canonical" href={SITE_URL} />
-
-        {/* Font Awesome */}
+    
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
-
-        {/* PWA */}
         <link rel="manifest" href="/manifest.json" />
-
-        {/* Microsoft Tiles */}
-        <meta name="msapplication-TileColor" content="#001F54" />
-        <meta name="msapplication-starturl" content="/" />
-
-        {/* iOS Safari */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-        <meta name="apple-mobile-web-app-title" content="Jesse Roper" />
       </head>
       <body>{children}</body>
     </html>
   );
 }
+
 
