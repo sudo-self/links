@@ -788,6 +788,7 @@ export default function Home() {
     </div>
   </div>
 </header>
+        <iframe name="aiJesse" width="500px" height="500px" src="https://ai.jessejesse.com" scrolling="no" marginwidth="0" marginheight="0" style="border:2px solid #ffffff;"></iframe>
 
         <div className="content">
           <div className="links-section">
