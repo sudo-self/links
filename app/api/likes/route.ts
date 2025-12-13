@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/lib/init-db';
 
-
+// Helper function to get user hash from cookies
 function getUserHash(req: NextRequest): string {
   const userHashCookie = req.cookies.get('user_hash')?.value;
   if (userHashCookie) {
@@ -14,7 +14,8 @@ function getUserHash(req: NextRequest): string {
   return 'user_' + Math.random().toString(36).substr(2, 9);
 }
 
-export async function GET() {
+// FIXED: Added req parameter to GET function
+export async function GET(req: NextRequest) {
   try {
     const { rows } = await pool.query(
       `SELECT page_id, like_count
@@ -25,7 +26,7 @@ export async function GET() {
     
     const response = NextResponse.json({ success: true, pages: rows });
     
-  
+    // Ensure user hash cookie exists
     if (!req.cookies.get('user_hash')) {
       const userHash = getUserHash(req);
       response.cookies.set('user_hash', userHash, {
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
       [pageId]
     );
 
-  
+    // track per-user like
     await pool.query(
       `
       INSERT INTO page_likes (page_id, user_hash)
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
       hasLiked: true
     });
     
-  
+    // Set user hash cookie if not present
     if (!req.cookies.get('user_hash')) {
       response.cookies.set('user_hash', userHash, {
         maxAge: 60 * 60 * 24 * 365,
@@ -105,7 +106,7 @@ export async function DELETE(req: NextRequest) {
 
     const userHash = getUserHash(req);
 
-
+    // Check if user has liked
     const existingLike = await pool.query(
       `SELECT 1 FROM page_likes 
        WHERE page_id = $1 AND user_hash = $2
@@ -121,14 +122,14 @@ export async function DELETE(req: NextRequest) {
       });
     }
 
- 
+    // Remove user's like
     await pool.query(
       `DELETE FROM page_likes 
        WHERE page_id = $1 AND user_hash = $2`,
       [pageId, userHash]
     );
 
-  
+    // Decrement page like count
     const result = await pool.query(
       `
       UPDATE page_stats 
@@ -145,7 +146,7 @@ export async function DELETE(req: NextRequest) {
       hasLiked: false
     });
     
-   
+    // Set user hash cookie if not present
     if (!req.cookies.get('user_hash')) {
       response.cookies.set('user_hash', userHash, {
         maxAge: 60 * 60 * 24 * 365,
@@ -161,4 +162,17 @@ export async function DELETE(req: NextRequest) {
     console.error(err);
     return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
   }
+}
+
+// OPTIONS → CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-CSRF-Token, X-Requested-With, Accept',
+    },
+  });
 }
