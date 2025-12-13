@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { metadata } from './layout';
+import { siteMetadata } from './siteMetadata';
 import './globals.css';
 
 // TypeScript interfaces
@@ -340,15 +340,13 @@ const removeLike = async () => {
 
 
 
-const handleShare = async () => {
-  const ogImage =
-    metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
+export const handleShare = async () => {
+
+  const ogImage = metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
 
   const shareData: any = {
     title: metadata.title ?? 'Jesse Roper - Software Engineer',
-    text:
-      metadata.description ??
-      "Jesse Roper's portfolio and links",
+    text: metadata.description ?? "Jesse Roper's portfolio and links",
     url: window.location.href,
   };
 
@@ -372,7 +370,7 @@ const handleShare = async () => {
       showNotification({ type: 'share' });
     }
   } catch (err) {
-    console.log('Error sharing:', err);
+    console.error('Error sharing:', err);
     try {
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
@@ -381,8 +379,7 @@ const handleShare = async () => {
     }
   }
 };
-
-
+  
   // Calendar functions
   const generateCalendarDays = () => {
     const year = currentCalendarDate.getFullYear();
