@@ -785,7 +785,7 @@ export default function Home() {
 
         <div className="content">
           <div className="links-section">
-            <h4 className="section-title"><i className="fas fa-link"></i>links.JesseJesse.com</h4>
+            <h4 className="section-title"><i className="fas fa-link"></i>Social Links</h4>
 
             <a
               href="https://x.com/lightfighter719"
