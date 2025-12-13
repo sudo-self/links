@@ -1,5 +1,3 @@
-'use client';
-
 import { Metadata } from 'next';
 import { Poppins, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
@@ -39,7 +37,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'Jesse Roper' }],
   creator: 'Jesse Roper',
   publisher: 'Jesse Roper',
-
   openGraph: {
     type: 'website',
     url: SITE_URL,
@@ -56,7 +53,6 @@ export const metadata: Metadata = {
     ],
     locale: 'en_US',
   },
-
   twitter: {
     card: 'summary_large_image',
     title: SITE_TITLE,
@@ -65,7 +61,6 @@ export const metadata: Metadata = {
     creator: '@lightfighter719',
     site: '@lightfighter719',
   },
-
   robots: {
     index: true,
     follow: true,
@@ -77,20 +72,16 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-
   applicationName: 'Jesse Roper Links',
   appleWebApp: {
     capable: true,
     title: 'Jesse Roper',
     statusBarStyle: 'black-translucent',
   },
-
   formatDetection: {
     telephone: false,
   },
-
   themeColor: (theme) => (theme === 'dark' ? '#0f0c29' : '#ffffff'),
-
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
@@ -102,15 +93,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${poppins.variable} ${sourceCodePro.variable}`}>
       <head>
-    
+   
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
