@@ -891,7 +891,7 @@ const removeLike = async () => {
               </div>
               <div className="link-text">
                 <div className="link-title">Contact Me</div>
-                <div className="link-description">Email to collab/div>
+                <div className="link-description">Email to collab</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
