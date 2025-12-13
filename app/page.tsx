@@ -339,38 +339,50 @@ const removeLike = async () => {
   }, []);
 
 
-
 const handleShare = async () => {
   try {
+    const ogImages = metadata.openGraph?.images;
 
-    const images = Array.isArray(metadata.openGraph?.images)
-      ? metadata.openGraph.images
-      : metadata.openGraph?.images
-      ? [metadata.openGraph.images]
-      : [];
+    let ogImageUrl: string = `${window.location.origin}/icon.jpg`;
 
-    const ogImage = images[0]?.url ?? `${window.location.origin}/icon.jpg`;
+    if (typeof ogImages === 'string') {
+      ogImageUrl = ogImages;
+    } else if (Array.isArray(ogImages)) {
+      const first = ogImages[0];
+      if (typeof first === 'string') {
+        ogImageUrl = first;
+      } else if (first && typeof first === 'object' && 'url' in first) {
+        ogImageUrl = first.url as string;
+      }
+    } else if (ogImages && typeof ogImages === 'object' && 'url' in ogImages) {
+      ogImageUrl = ogImages.url as string;
+    }
 
-    const shareData: any = {
-      title: metadata.title ?? 'Jesse Roper - Software Engineer',
-      text: metadata.description ?? "Jesse Roper's portfolio and links",
+    const shareData: ShareData = {
+      title:
+        typeof metadata.title === 'string'
+          ? metadata.title
+          : 'Jesse Roper - Software Engineer',
+      text:
+        metadata.description ??
+        "Jesse Roper's portfolio and links",
       url: window.location.href,
     };
 
-  
-    if (navigator.canShare && navigator.canShare({ files: [] })) {
+    // Attempt image sharing if supported
+    if (navigator.canShare) {
       try {
-        const response = await fetch(ogImage);
-        if (response.ok) {
-          const blob = await response.blob();
-          const file = new File([blob], 'share-image.jpg', { type: blob.type });
+        const res = await fetch(ogImageUrl);
+        if (res.ok) {
+          const blob = await res.blob();
+          const file = new File([blob], 'share.jpg', { type: blob.type });
 
           if (navigator.canShare({ files: [file] })) {
             shareData.files = [file];
           }
         }
-      } catch (fetchError) {
-        console.warn('Could not fetch OG image for sharing:', fetchError);
+      } catch {
+        // silently ignore image fetch issues
       }
     }
 
@@ -381,7 +393,7 @@ const handleShare = async () => {
       showNotification({ type: 'share' });
     }
   } catch (err) {
-    console.error('Error sharing:', err);
+    console.error('Share failed:', err);
     try {
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
@@ -390,6 +402,7 @@ const handleShare = async () => {
     }
   }
 };
+
 
 
 
