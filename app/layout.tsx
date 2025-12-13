@@ -1,5 +1,4 @@
 'use client';
-
 import { Poppins, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
 import { metadata as siteMetadata } from './siteMetadata'; 
@@ -17,14 +16,14 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Safe OpenGraph image handling
+  // Safely resolve OpenGraph image
   const ogImage = (() => {
     const images = siteMetadata.openGraph?.images;
     if (Array.isArray(images) && images.length > 0) {
       const first = images[0];
       if (typeof first === 'string') return first;
-      if ('url' in first) return first.url;
       if (first instanceof URL) return first.toString();
+      if ('url' in first) return first.url;
       return '';
     } else if (typeof images === 'string') {
       return images;
@@ -33,6 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
     return '/icon.jpg';
   })();
+
+  // Coerce metadata to string for TypeScript
+  const title = String(siteMetadata.title ?? '');
+  const description = String(siteMetadata.description ?? '');
+  const metadataBase = siteMetadata.metadataBase?.toString() ?? '';
 
   return (
     <html lang="en" className={`${poppins.variable} ${sourceCodePro.variable}`}>
@@ -43,15 +47,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* OpenGraph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={siteMetadata.title} />
-        <meta property="og:description" content={siteMetadata.description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
         <meta property="og:image" content={ogImage} />
-        <meta property="og:url" content={siteMetadata.metadataBase?.toString() ?? ''} />
+        <meta property="og:url" content={metadataBase} />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={siteMetadata.title} />
-        <meta name="twitter:description" content={siteMetadata.description} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={ogImage} />
 
         {/* Theme color */}
@@ -62,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
 
 
 
