@@ -343,28 +343,26 @@ const removeLike = async () => {
 const handleShare = async () => {
   try {
     // Determine OpenGraph image safely
-    let ogImage = `${window.location.origin}/icon.jpg`; // fallback
+    let ogImage: string | undefined;
 
-    const images = metadata.openGraph?.images;
-    if (Array.isArray(images) && images.length > 0) {
-      const first = images[0];
-      if (typeof first === 'string') {
-        ogImage = first;
-      } else if (first && 'url' in first && typeof first.url === 'string') {
-        ogImage = first.url;
-      }
-    } else if (typeof images === 'string') {
-      ogImage = images;
+    if (Array.isArray(metadata.openGraph?.images)) {
+      const first = metadata.openGraph.images[0];
+      ogImage = typeof first === 'string' ? first : first?.url;
+    } else if (typeof metadata.openGraph?.images === 'string') {
+      ogImage = metadata.openGraph.images;
     }
 
-    const shareData: any = {
+    // Fallback if undefined
+    ogImage ??= `${window.location.origin}/icon.jpg`;
+
+    const shareData: ShareData = {
       title: metadata.title ?? 'Jesse Roper - Software Engineer',
       text: metadata.description ?? 'Professional portfolio and links',
       url: window.location.href,
     };
 
-    // Attempt to attach image if navigator.canShare supports it
-    if (navigator.canShare && navigator.canShare({ files: [] })) {
+    // Attach image if supported
+    if (navigator.canShare) {
       try {
         const response = await fetch(ogImage);
         if (response.ok) {
@@ -375,11 +373,11 @@ const handleShare = async () => {
           }
         }
       } catch {
-        // silently ignore fetch errors
+        // ignore fetch errors
       }
     }
 
-    // Share or fallback to clipboard
+    // Use native share if available
     if (navigator.share) {
       await navigator.share(shareData);
     } else {
@@ -396,6 +394,7 @@ const handleShare = async () => {
     }
   }
 };
+
 
 
 
