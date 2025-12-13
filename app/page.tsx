@@ -338,36 +338,32 @@ const removeLike = async () => {
     }, 3000);
   }, []);
 
-
 const handleShare = async () => {
   try {
-    const ogImages = metadata.openGraph?.images;
-
-    let ogImageUrl: string = `${window.location.origin}/icon.jpg`;
-
-    if (typeof ogImages === 'string') {
-      ogImageUrl = ogImages;
-    } else if (Array.isArray(ogImages)) {
-      const first = ogImages[0];
-      if (typeof first === 'string') {
-        ogImageUrl = first;
-      } else if (first && typeof first === 'object' && 'url' in first) {
-        ogImageUrl = first.url as string;
-      }
-    } else if (ogImages && typeof ogImages === 'object' && 'url' in ogImages) {
-      ogImageUrl = ogImages.url as string;
-    }
-
-    const shareData: ShareData = {
-      title:
-        typeof metadata.title === 'string'
-          ? metadata.title
-          : 'Jesse Roper - Software Engineer',
-      text:
-        metadata.description ??
-        "Jesse Roper's portfolio and links",
+    const shareData: any = {
+      title: metadata.title,
+      text: metadata.description,
       url: window.location.href,
     };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+     
+      await navigator.clipboard.writeText(window.location.href);
+      showNotification({ type: 'share' });
+    }
+  } catch (err) {
+    console.error('Share failed:', err);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showNotification({ type: 'share' });
+    } catch {
+      alert(`Share this link:\n${window.location.href}`);
+    }
+  }
+};
+
 
     // Attempt image sharing if supported
     if (navigator.canShare) {
