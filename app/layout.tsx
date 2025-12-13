@@ -1,5 +1,7 @@
+'use client';
 import { Poppins, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
+import { metadata as siteMetadata } from './siteMetadata'; 
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -13,40 +15,32 @@ const sourceCodePro = Source_Code_Pro({
   variable: '--font-source-code-pro',
 });
 
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const ogImage =
+    Array.isArray(siteMetadata.openGraph?.images)
+      ? siteMetadata.openGraph?.images[0]?.url
+      : siteMetadata.openGraph?.images?.url;
+
   return (
     <html lang="en" className={`${poppins.variable} ${sourceCodePro.variable}`}>
       <head>
-        {/* Favicons */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="icon" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" sizes="192x192" href="/favicon-192.png" />
 
-        {/* PWA */}
-        <link rel="manifest" href="/manifest.json" />
+     
+        <meta property="og:type" content={siteMetadata.openGraph?.type ?? 'website'} />
+        <meta property="og:title" content={siteMetadata.title} />
+        <meta property="og:description" content={siteMetadata.description} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:url" content={siteMetadata.metadataBase?.toString() ?? ''} />
 
-        {/* Font Awesome */}
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={siteMetadata.title} />
+        <meta name="twitter:description" content={siteMetadata.description} />
+        <meta name="twitter:image" content={ogImage} />
 
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://links.jessejesse.com" />
-
-        {/* iOS Safari */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Jesse Roper" />
-
-        {/* Windows */}
-        <meta name="msapplication-TileColor" content="#001F54" />
-        <meta name="msapplication-starturl" content="/" />
-
-        {/* Theme colors */}
+    
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f0c29" media="(prefers-color-scheme: dark)" />
       </head>
