@@ -340,18 +340,17 @@ const removeLike = async () => {
 
 
 
-export const handleShare = async () => {
-
-  const ogImage = metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
+const handleShare = async () => {
+  const ogImage =
+    siteMetadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
 
   const shareData: any = {
-    title: metadata.title ?? 'Jesse Roper - Software Engineer',
-    text: metadata.description ?? "Jesse Roper's portfolio and links",
+    title: siteMetadata.title ?? 'Jesse Roper - Software Engineer',
+    text: siteMetadata.description ?? "portfolio and links",
     url: window.location.href,
   };
 
   try {
-
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       const response = await fetch(ogImage);
       const blob = await response.blob();
@@ -365,7 +364,6 @@ export const handleShare = async () => {
     if (navigator.share) {
       await navigator.share(shareData);
     } else {
-
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     }
@@ -379,6 +377,7 @@ export const handleShare = async () => {
     }
   }
 };
+
   
   // Calendar functions
   const generateCalendarDays = () => {
