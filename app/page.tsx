@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { metadata } from './layout';
 import './globals.css';
 
 // TypeScript interfaces
@@ -337,31 +338,50 @@ const removeLike = async () => {
     }, 3000);
   }, []);
 
-  // Share functionality
-  const handleShare = async () => {
-    const shareData = {
-      title: 'Jesse Roper - Software Engineer',
-      text: 'Check out Jesse Roper\'s professional portfolio and links',
-      url: window.location.href
-    };
-    
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        showNotification({ type: 'share' });
-      }
-    } catch (err) {
-      console.log('Error sharing:', err);
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        showNotification({ type: 'share' });
-      } catch (clipboardErr) {
-        alert(`Share this link:\n${window.location.href}`);
+
+
+const handleShare = async () => {
+  const ogImage =
+    metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
+
+  const shareData: any = {
+    title: metadata.title ?? 'Jesse Roper - Software Engineer',
+    text:
+      metadata.description ??
+      "Jesse Roper's portfolio and links",
+    url: window.location.href,
+  };
+
+  try {
+
+    if (navigator.canShare && navigator.canShare({ files: [] })) {
+      const response = await fetch(ogImage);
+      const blob = await response.blob();
+      const file = new File([blob], 'share-image.jpg', { type: blob.type });
+
+      if (navigator.canShare({ files: [file] })) {
+        shareData.files = [file];
       }
     }
-  };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+
+      await navigator.clipboard.writeText(window.location.href);
+      showNotification({ type: 'share' });
+    }
+  } catch (err) {
+    console.log('Error sharing:', err);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showNotification({ type: 'share' });
+    } catch {
+      alert(`Share this link:\n${window.location.href}`);
+    }
+  }
+};
+
 
   // Calendar functions
   const generateCalendarDays = () => {
