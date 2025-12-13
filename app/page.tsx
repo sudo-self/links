@@ -762,32 +762,31 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="container">
-        <header>
-          <div className="profile-pic">
-            <img
-              src="/apple-touch-icon.png"
-              alt="Jesse Roper Profile Photo"
-              loading="lazy"
-            />
-          </div>
-
-          <h1>Jesse Roper</h1>
-          <br />
-          <div className="code-badge">Software Engineer</div>
-          <br />
-
-          <br />
-     <div className="education">
-  <div>
-    <i className="fas fa-graduation-cap" aria-hidden="true"></i>
-    B.S. Information Technology, CTU
+<header>
+  <div className="profile-pic">
+    <img
+      src="/apple-touch-icon.png"
+      alt="Jesse Roper Profile Photo"
+      loading="lazy"
+    />
   </div>
-  <div style={{ marginTop: '8px' }}>
-    <i className="fa-solid fa-award" aria-hidden="true"></i>
-    CompTIA Tech+
+
+  <h1>Jesse Roper</h1>
+  <br />
+  <div className="code-badge">Software Engineer</div>
+  <br />
+  <br />
+  <div className="education">
+    <div style={{ marginBottom: '4px' }}>
+      <i className="fas fa-graduation-cap" aria-hidden="true"></i>
+      <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU</span>
+    </div>
+    <div>
+      <i className="fa-solid fa-award" aria-hidden="true"></i>
+      <span style={{ marginLeft: '8px' }}>CompTIA Tech+</span>
+    </div>
   </div>
-</div>
-        </header>
+</header>
 
         <div className="content">
           <div className="links-section">
