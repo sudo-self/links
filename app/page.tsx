@@ -760,32 +760,34 @@ export default function Home() {
         </>
       )}
 
-     {/* Main Content */}
-<div className="container">
-  <header>
-    <div className="profile-pic">
-      <img
-        src="/apple-touch-icon.png"
-        alt="Jesse Roper Profile Photo"
-        loading="lazy"
-      />
-    </div>
+      {/* Main Content */}
+      <div className="container">
+<header>
+  <div className="profile-pic">
+    <img
+      src="/apple-touch-icon.png"
+      alt="Jesse Roper Profile Photo"
+      loading="lazy"
+    />
+  </div>
 
-    <h1>Jesse Roper</h1>
-    <br />
-    <div className="code-badge">Software Engineer</div>
-    <br />
-    <br />
-    
-    <div className="education">
+  <h1>Jesse Roper</h1>
+  <br />
+  <div className="code-badge">Software Engineer</div>
+  <br />
+  <br />
+  
+  <div className="education" style={{ textAlign: 'center' }}>
+    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fas fa-graduation-cap" aria-hidden="true"></i>
       <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU</span>
-      <br /><br />
+    </div><br />
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fa-solid fa-award" aria-hidden="true"></i>
       <span style={{ marginLeft: '8px' }}>CompTIA Tech+</span>
     </div>
-  </header>
-</div>
+  </div>
+</header>
 
         <div className="content">
           <div className="links-section">
