@@ -1,5 +1,4 @@
 'use client';
-
 import { Poppins, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
 import { metadata as siteMetadata } from './siteMetadata'; 
@@ -17,18 +16,19 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-
+  // Type-safe og:image
   const ogImage = (() => {
     const images = siteMetadata.openGraph?.images;
 
-    if (Array.isArray(images)) {
-      const first = images[0];
-      return typeof first === 'string' ? first : first?.url;
-    } else if (typeof images === 'string') {
-      return images;
-    }
+    if (!images) return '/icon.jpg';
 
-    return '/icon.jpg'; 
+    const first = Array.isArray(images) ? images[0] : images;
+
+    if (typeof first === 'string') return first;
+    if (first instanceof URL) return first.toString();
+    if ('url' in first) return first.url;
+
+    return '/icon.jpg';
   })();
 
   return (
@@ -56,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
 
 
 
