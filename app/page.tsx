@@ -785,7 +785,7 @@ export default function Home() {
 
         <div className="content">
           <div className="links-section">
-            <h2 className="section-title"><i className="fas fa-link"></i>Links</h2>
+            <h4 className="section-title"><i className="fas fa-link"></i>links.JesseJesse.com</h4>
 
             <a
               href="https://x.com/lightfighter719"
@@ -873,7 +873,7 @@ export default function Home() {
               </div>
               <div className="link-text">
                 <div className="link-title">Contact Me</div>
-                <div className="link-description">Email for inquiries or opportunities</div>
+                <div className="link-description">Email inquiries</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
