@@ -780,11 +780,11 @@ export default function Home() {
   <div className="education" style={{ textAlign: 'center' }}>
     <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fas fa-graduation-cap" aria-hidden="true"></i>
-      <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU</span>
-    </div><br />
+      <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU.</span>
+    </div>
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fa-solid fa-award" aria-hidden="true"></i>
-      <span style={{ marginLeft: '8px' }}>CompTIA Tech+</span>
+      <span style={{ marginLeft: '8px' }}>Tech+ Certification, CompTIA.</span>
     </div>
   </div>
 </header>
