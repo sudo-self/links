@@ -579,7 +579,7 @@ export default function Home() {
           <i className={`fas fa-${notification.type === 'share' ? 'check-circle' : notification.type === 'like' ? 'heart' : 'calendar-check'}`}></i>
           <span>
             {notification.type === 'share' ? 'Link copied to clipboard!' :
-             notification.type === 'like' ? 'Thank you for the like!' :
+             notification.type === 'like' ? 'Thank you!' :
              notification.message || 'Event added to calendar!'}
           </span>
         </div>
