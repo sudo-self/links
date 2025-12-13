@@ -776,12 +776,13 @@ export default function Home() {
   <div className="code-badge">Software Engineer</div>
   <br />
   <br />
-  <div className="education">
-    <div style={{ marginBottom: '4px' }}>
+  
+  <div className="education" style={{ textAlign: 'center' }}>
+    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fas fa-graduation-cap" aria-hidden="true"></i>
       <span style={{ marginLeft: '8px' }}>B.S. Information Technology, CTU</span>
     </div>
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <i className="fa-solid fa-award" aria-hidden="true"></i>
       <span style={{ marginLeft: '8px' }}>CompTIA Tech+</span>
     </div>
