@@ -340,15 +340,22 @@ const removeLike = async () => {
 
 
   
-
 const handleShare = async () => {
   try {
+    // Determine OpenGraph image safely
+    let ogImage = `${window.location.origin}/icon.jpg`; // fallback
 
-    const ogImage =
-      Array.isArray(metadata.openGraph?.images) && metadata.openGraph.images.length > 0
-        ? metadata.openGraph.images[0].url
-        : `${window.location.origin}/icon.jpg`;
-
+    const images = metadata.openGraph?.images;
+    if (Array.isArray(images) && images.length > 0) {
+      const first = images[0];
+      if (typeof first === 'string') {
+        ogImage = first;
+      } else if (first && 'url' in first && typeof first.url === 'string') {
+        ogImage = first.url;
+      }
+    } else if (typeof images === 'string') {
+      ogImage = images;
+    }
 
     const shareData: any = {
       title: metadata.title ?? 'Jesse Roper - Software Engineer',
@@ -356,7 +363,7 @@ const handleShare = async () => {
       url: window.location.href,
     };
 
-
+    // Attempt to attach image if navigator.canShare supports it
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       try {
         const response = await fetch(ogImage);
@@ -367,32 +374,29 @@ const handleShare = async () => {
             shareData.files = [file];
           }
         }
-      } catch (err) {
-        console.warn('Failed to fetch share image, continuing without it.', err);
+      } catch {
+        // silently ignore fetch errors
       }
     }
 
- 
+    // Share or fallback to clipboard
     if (navigator.share) {
       await navigator.share(shareData);
-      showNotification({ type: 'share' });
     } else {
-   
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     }
   } catch (err) {
     console.error('Share failed:', err);
     try {
-   
       await navigator.clipboard.writeText(window.location.href);
       showNotification({ type: 'share' });
     } catch {
-      
-      alert(`Share this link manually:\n${window.location.href}`);
+      alert(`Share this link:\n${window.location.href}`);
     }
   }
 };
+
 
 
   
