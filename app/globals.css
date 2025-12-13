@@ -1009,8 +1009,8 @@ footer {
 
 .like-notification {
     position: fixed;
-    top: 80px;
-    left: 10%;
+    top: 200px;
+    left: 40%;
     transform: translateX(-50%) translateY(-20px);
     background: linear-gradient(135deg, #ffffff, #f8fafc);
     border: 1px solid #e2e8f0;
