@@ -34,3 +34,5 @@ coverage/
 # Optional dependency directories
 .pnpm-store/
 
+.vercel
+.env*.local
