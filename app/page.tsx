@@ -37,6 +37,7 @@ export default function Home() {
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [linkCardsVisible, setLinkCardsVisible] = useState(false);
+  const [isLoadingLikes, setIsLoadingLikes] = useState(true);
   
   // Event form refs
   const eventTitleRef = useRef<HTMLInputElement>(null);
@@ -65,7 +66,7 @@ export default function Home() {
     { src: "https://avatars.githubusercontent.com/u/119916323?v=4", alt: "GitHub Profile" },
   ];
 
-  // Theme toggle
+  // Theme toggle - FIXED: Load from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     const isDark = savedTheme === 'dark';
@@ -87,7 +88,7 @@ export default function Home() {
     }
   };
 
-  // Date and time
+  // Date and time with fetchLikeCount integration
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -114,174 +115,183 @@ export default function Home() {
     setLinkCardsVisible(true);
   }, []);
 
-    // Like functionality - CLEAN VERSION
-    const fetchLikeCount = useCallback(async () => {
-      try {
-        const response = await fetch(`/api/likes/${PAGE_ID}`);
+  // Like functionality - FIXED: Added fetch on mount
+  const fetchLikeCount = useCallback(async () => {
+    setIsLoadingLikes(true);
+    try {
+      const response = await fetch(`/api/likes/${PAGE_ID}`);
+      
+      if (response.ok) {
+        const data = await response.json();
         
-        if (response.ok) {
-          const data = await response.json();
+        if (data.success) {
+          // Handle different response structures
+          let likes = 0;
+          let hasLiked = false;
           
-          if (data.success) {
-            // Handle different response structures
-            let likes = 0;
-            let hasLiked = false;
-            
-            if (data.likes !== undefined) {
-              likes = data.likes;
-            } else if (data.page?.like_count !== undefined) {
-              likes = data.page.like_count;
-            }
-            
-            if (data.hasLiked !== undefined) {
-              hasLiked = data.hasLiked;
-            } else if (data.page?.hasLiked !== undefined) {
-              hasLiked = data.page.hasLiked;
-            }
-            
-            setCurrentLikes(likes);
-            setIsLiked(hasLiked);
-          } else {
-            // API returned success: false
-            fallbackToLocalStorage();
+          if (data.likes !== undefined) {
+            likes = data.likes;
+          } else if (data.page?.like_count !== undefined) {
+            likes = data.page.like_count;
           }
+          
+          if (data.hasLiked !== undefined) {
+            hasLiked = data.hasLiked;
+          } else if (data.page?.hasLiked !== undefined) {
+            hasLiked = data.page.hasLiked;
+          }
+          
+          setCurrentLikes(likes);
+          setIsLiked(hasLiked);
         } else {
-          // HTTP error
+          // API returned success: false
           fallbackToLocalStorage();
         }
-      } catch (error) {
-        // Network error
+      } else {
+        // HTTP error
         fallbackToLocalStorage();
       }
-    }, []);
+    } catch (error) {
+      // Network error
+      fallbackToLocalStorage();
+    } finally {
+      setIsLoadingLikes(false);
+    }
+  }, []);
 
-    // Helper function for localStorage fallback
-    const fallbackToLocalStorage = () => {
-      const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
-      const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
-      setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
-      setIsLiked(savedLiked === 'true');
-    };
+  // FIXED: Fetch like count on component mount
+  useEffect(() => {
+    fetchLikeCount();
+  }, [fetchLikeCount]);
 
-    const addLike = async () => {
-      if (isLiked) return;
+  // Helper function for localStorage fallback
+  const fallbackToLocalStorage = () => {
+    const savedLikes = localStorage.getItem(`likes-${PAGE_ID}`);
+    const savedLiked = localStorage.getItem(`liked-${PAGE_ID}`);
+    setCurrentLikes(savedLikes ? parseInt(savedLikes) : 0);
+    setIsLiked(savedLiked === 'true');
+  };
+
+  const addLike = async () => {
+    if (isLiked) return;
+    
+    // Optimistic update
+    setIsLiked(true);
+    const newLikes = currentLikes + 1;
+    setCurrentLikes(newLikes);
+    
+    // Show notification
+    showNotification({ type: 'like' });
+    
+    // Save to localStorage as fallback
+    localStorage.setItem(`liked-${PAGE_ID}`, 'true');
+    localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+    
+    // Send to API
+    try {
+      const response = await fetch(`/api/likes/${PAGE_ID}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include'
+        },
+      });
       
-      // Optimistic update
-      setIsLiked(true);
-      const newLikes = currentLikes + 1;
-      setCurrentLikes(newLikes);
-      
-      // Show notification
-      showNotification({ type: 'like' });
-      
-      // Save to localStorage as fallback
-      localStorage.setItem(`liked-${PAGE_ID}`, 'true');
-      localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
-      
-      // Send to API
-      try {
-        const response = await fetch(`/api/likes/${PAGE_ID}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include'
-          },
-        });
+      if (response.ok) {
+        const data = await response.json();
         
-        if (response.ok) {
-          const data = await response.json();
+        if (data.success) {
+          // Update with data from API response
+          let apiLikes = newLikes;
+          let apiHasLiked = true;
           
-          if (data.success) {
-            // Update with data from API response
-            let apiLikes = newLikes;
-            let apiHasLiked = true;
-            
-            if (data.likes !== undefined) {
-              apiLikes = data.likes;
-            } else if (data.page?.like_count !== undefined) {
-              apiLikes = data.page.like_count;
-            }
-            
-            if (data.hasLiked !== undefined) {
-              apiHasLiked = data.hasLiked;
-            } else if (data.page?.hasLiked !== undefined) {
-              apiHasLiked = data.page.hasLiked;
-            }
-            
-            setCurrentLikes(apiLikes);
-            setIsLiked(apiHasLiked);
-            
-            // Update localStorage with correct value
+          if (data.likes !== undefined) {
+            apiLikes = data.likes;
+          } else if (data.page?.like_count !== undefined) {
+            apiLikes = data.page.like_count;
+          }
+          
+          if (data.hasLiked !== undefined) {
+            apiHasLiked = data.hasLiked;
+          } else if (data.page?.hasLiked !== undefined) {
+            apiHasLiked = data.page.hasLiked;
+          }
+          
+          setCurrentLikes(apiLikes);
+          setIsLiked(apiHasLiked);
+          
+          // Update localStorage with correct value
+          localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
+        }
+      }
+    } catch (error) {
+      // Network error - keep localStorage as fallback
+      console.error('Error adding like:', error);
+    }
+  };
+
+  const removeLike = async () => {
+    if (!isLiked) return;
+    
+    // Optimistic update
+    setIsLiked(false);
+    const newLikes = Math.max(0, currentLikes - 1);
+    setCurrentLikes(newLikes);
+    
+    // Remove from localStorage
+    localStorage.removeItem(`liked-${PAGE_ID}`);
+    localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
+    
+    // Send to API
+    try {
+      const response = await fetch(`/api/likes/${PAGE_ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include'
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update with data from API response
+          let apiLikes = newLikes;
+          let apiHasLiked = false;
+          
+          if (data.likes !== undefined) {
+            apiLikes = data.likes;
+          } else if (data.page?.like_count !== undefined) {
+            apiLikes = data.page.like_count;
+          }
+          
+          if (data.hasLiked !== undefined) {
+            apiHasLiked = data.hasLiked;
+          } else if (data.page?.hasLiked !== undefined) {
+            apiHasLiked = data.page.hasLiked;
+          }
+          
+          setCurrentLikes(apiLikes);
+          setIsLiked(apiHasLiked);
+          
+          // Update localStorage
+          if (apiLikes === 0) {
+            localStorage.removeItem(`likes-${PAGE_ID}`);
+          } else {
             localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
           }
+        } else if (data.error === 'User has not liked this page') {
+          // Revert optimistic update if API says user hasn't liked
+          setIsLiked(false);
+          setCurrentLikes(newLikes);
         }
-      } catch (error) {
-        // Network error - keep localStorage as fallback
-        console.error('Error adding like:', error);
       }
-    };
+    } catch (error) {
+      console.error('Error removing like:', error);
+    }
+  };
 
-    const removeLike = async () => {
-      if (!isLiked) return;
-      
-      // Optimistic update
-      setIsLiked(false);
-      const newLikes = Math.max(0, currentLikes - 1);
-      setCurrentLikes(newLikes);
-      
-      // Remove from localStorage
-      localStorage.removeItem(`liked-${PAGE_ID}`);
-      localStorage.setItem(`likes-${PAGE_ID}`, newLikes.toString());
-      
-      // Send to API
-      try {
-        const response = await fetch(`/api/likes/${PAGE_ID}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include'
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          if (data.success) {
-            // Update with data from API response
-            let apiLikes = newLikes;
-            let apiHasLiked = false;
-            
-            if (data.likes !== undefined) {
-              apiLikes = data.likes;
-            } else if (data.page?.like_count !== undefined) {
-              apiLikes = data.page.like_count;
-            }
-            
-            if (data.hasLiked !== undefined) {
-              apiHasLiked = data.hasLiked;
-            } else if (data.page?.hasLiked !== undefined) {
-              apiHasLiked = data.page.hasLiked;
-            }
-            
-            setCurrentLikes(apiLikes);
-            setIsLiked(apiHasLiked);
-            
-            // Update localStorage
-            if (apiLikes === 0) {
-              localStorage.removeItem(`likes-${PAGE_ID}`);
-            } else {
-              localStorage.setItem(`likes-${PAGE_ID}`, apiLikes.toString());
-            }
-          } else if (data.error === 'User has not liked this page') {
-            // Revert optimistic update if API says user hasn't liked
-            setIsLiked(false);
-            setCurrentLikes(newLikes);
-          }
-        }
-      } catch (error) {
-        console.error('Error removing like:', error);
-      }
-    };
   // Notification system
   const showNotification = useCallback((notification: Notification) => {
     setNotification(notification);
@@ -543,12 +553,18 @@ export default function Home() {
         <div
           className={`like-button ${isLiked ? 'liked' : ''} ${currentLikes > 0 ? 'has-likes' : ''}`}
           id="likeButton"
-          title="Like this page"
+          title={isLiked ? "Unlike this page" : "Like this page"}
           onClick={isLiked ? removeLike : addLike}
+          style={{ position: 'relative' }}
         >
           <i className={isLiked ? "fas fa-heart" : "far fa-heart"}></i>
           {currentLikes > 0 && (
             <span className="like-count" id="likeCount">{currentLikes}</span>
+          )}
+          {isLoadingLikes && (
+            <span className="like-count" style={{ background: '#64748b', fontSize: '8px' }}>
+              <i className="fas fa-spinner fa-spin"></i>
+            </span>
           )}
         </div>
 
@@ -562,9 +578,9 @@ export default function Home() {
         <div className={`${notification.type}-notification show`}>
           <i className={`fas fa-${notification.type === 'share' ? 'check-circle' : notification.type === 'like' ? 'heart' : 'calendar-check'}`}></i>
           <span>
-            {notification.type === 'share' ? 'copied!' :
-             notification.type === 'like' ? 'Thank you!' :
-             notification.message || 'added to calendar!'}
+            {notification.type === 'share' ? 'Link copied to clipboard!' :
+             notification.type === 'like' ? 'Thank you for the like!' :
+             notification.message || 'Event added to calendar!'}
           </span>
         </div>
       )}
@@ -574,6 +590,7 @@ export default function Home() {
         className="datetime-display"
         id="datetimeDisplay"
         onClick={() => setShowCalendar(true)}
+        title="Click to open calendar"
       >
         <span className="date" id="dateDisplay">{dateTime.date}</span>
         <span className="time" id="timeDisplay">{dateTime.time}</span>
@@ -586,11 +603,11 @@ export default function Home() {
           <div className="modal-overlay show" onClick={() => setShowCalendar(false)}></div>
           <div className="calendar-modal show" id="calendarModal">
             <div className="calendar-header">
-              <button className="calendar-nav" id="prevMonth" onClick={goToPreviousMonth}>
+              <button className="calendar-nav" id="prevMonth" onClick={goToPreviousMonth} aria-label="Previous month">
                 <i className="fas fa-chevron-left"></i>
               </button>
               <h3 id="currentMonthYear">{formatMonthYear(currentCalendarDate)}</h3>
-              <button className="calendar-nav" id="nextMonth" onClick={goToNextMonth}>
+              <button className="calendar-nav" id="nextMonth" onClick={goToNextMonth} aria-label="Next month">
                 <i className="fas fa-chevron-right"></i>
               </button>
             </div>
@@ -619,7 +636,7 @@ export default function Home() {
               }}>
                 <i className="fas fa-calendar-plus"></i> Create Event
               </button>
-              <button className="calendar-btn" id="closeCalendar" onClick={() => setShowCalendar(false)}>
+              <button className="calendar-btn" id="closeCalendar" onClick={() => setShowCalendar(false)} aria-label="Close calendar">
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -634,7 +651,7 @@ export default function Home() {
           <div className="event-modal show" id="eventModal">
             <div className="event-header">
               <h3>Create Calendar Event</h3>
-              <button className="close-event" id="closeEvent" onClick={() => setShowEventModal(false)}>
+              <button className="close-event" id="closeEvent" onClick={() => setShowEventModal(false)} aria-label="Close event modal">
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -648,6 +665,7 @@ export default function Home() {
                   placeholder="Meeting with Jesse Roper"
                   defaultValue="Meeting with Jesse Roper"
                   ref={eventTitleRef}
+                  aria-label="Event title"
                 />
               </div>
 
@@ -656,9 +674,10 @@ export default function Home() {
                 <textarea
                   id="eventDescription"
                   rows={3}
-                  placeholder="event details..."
+                  placeholder="Discuss opportunities..."
                   defaultValue="Discuss opportunities."
                   ref={eventDescriptionRef}
+                  aria-label="Event description"
                 />
               </div>
 
@@ -669,24 +688,27 @@ export default function Home() {
                     type="date"
                     id="eventDate"
                     ref={eventDateRef}
+                    aria-label="Event date"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="eventStartTime">Start</label>
+                  <label htmlFor="eventStartTime">Start Time</label>
                   <input
                     type="time"
                     id="eventStartTime"
                     ref={eventStartTimeRef}
+                    aria-label="Event start time"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="eventEndTime">End</label>
+                  <label htmlFor="eventEndTime">End Time</label>
                   <input
                     type="time"
                     id="eventEndTime"
                     ref={eventEndTimeRef}
+                    aria-label="Event end time"
                   />
                 </div>
               </div>
@@ -698,22 +720,24 @@ export default function Home() {
                   id="eventLocation"
                   placeholder="Zoom / Google Meet / In-person"
                   ref={eventLocationRef}
+                  aria-label="Event location"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="eventGuests">Guests</label>
+                <label htmlFor="eventGuests">Guests (Optional)</label>
                 <input
                   type="email"
                   id="eventGuests"
                   placeholder="email addresses separated by commas"
                   ref={eventGuestsRef}
+                  aria-label="Event guests"
                 />
               </div>
 
               <div className="form-group">
                 <label htmlFor="eventReminder">Reminder</label>
-                <select id="eventReminder" defaultValue="10" ref={eventReminderRef}>
+                <select id="eventReminder" defaultValue="10" ref={eventReminderRef} aria-label="Event reminder">
                   <option value="0">None</option>
                   <option value="5">5 minutes before</option>
                   <option value="10">10 minutes before</option>
@@ -725,10 +749,10 @@ export default function Home() {
             </div>
 
             <div className="event-footer">
-              <button className="event-btn" id="downloadICS" onClick={downloadICS}>
+              <button className="event-btn" id="downloadICS" onClick={downloadICS} aria-label="Download ICS file">
                 <i className="fas fa-download"></i> Download .ics
               </button>
-              <button className="event-btn primary" id="addToCalendar" onClick={addToCalendar}>
+              <button className="event-btn primary" id="addToCalendar" onClick={addToCalendar} aria-label="Add to Google Calendar">
                 <i className="fas fa-calendar-plus"></i> Add to Calendar
               </button>
             </div>
@@ -743,6 +767,7 @@ export default function Home() {
             <img
               src="/apple-touch-icon.png"
               alt="Jesse Roper Profile Photo"
+              loading="lazy"
             />
           </div>
 
@@ -771,6 +796,7 @@ export default function Home() {
                 opacity: linkCardsVisible ? 1 : 0,
                 transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)'
               }}
+              aria-label="Visit Jesse's X (Twitter) profile"
             >
               <div className="link-icon">
                 <i className="fa-solid fa-x"></i>
@@ -794,6 +820,7 @@ export default function Home() {
                 transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
                 transitionDelay: '0.1s'
               }}
+              aria-label="Visit Jesse's LinkedIn profile"
             >
               <div className="link-icon">
                 <i className="fab fa-linkedin-in"></i>
@@ -817,13 +844,14 @@ export default function Home() {
                 transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
                 transitionDelay: '0.2s'
               }}
+              aria-label="Visit Jesse's GitHub profile"
             >
               <div className="link-icon">
                 <i className="fab fa-github"></i>
               </div>
               <div className="link-text">
                 <div className="link-title">GitHub Portfolio</div>
-                <div className="link-description">software projects</div>
+                <div className="link-description">Software projects</div>
               </div>
               <div className="link-arrow">
                 <i className="fas fa-arrow-right"></i>
@@ -838,6 +866,7 @@ export default function Home() {
                 transform: linkCardsVisible ? 'translateY(0)' : 'translateY(20px)',
                 transitionDelay: '0.3s'
               }}
+              aria-label="Email Jesse"
             >
               <div className="link-icon">
                 <i className="fas fa-envelope"></i>
@@ -861,7 +890,7 @@ export default function Home() {
         <footer>
           <div className="developer-badges-row" id="developerBadgesRow">
             {badges.map((badge, index) => (
-              <div key={index} className="badge-item">
+              <div key={index} className="badge-item" title={badge.alt}>
                 <img
                   src={badge.src}
                   alt={badge.alt}
