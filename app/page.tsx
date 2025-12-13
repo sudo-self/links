@@ -777,10 +777,16 @@ export default function Home() {
           <br />
 
           <br />
-          <div className="education">
-            <i className="fas fa-graduation-cap"></i>
-            B.S. Information Technology, CTU
-          </div>
+     <div className="education">
+  <div>
+    <i className="fas fa-graduation-cap" aria-hidden="true"></i>
+    B.S. Information Technology, CTU
+  </div>
+  <div style={{ marginTop: '8px' }}>
+    <i className="fa-solid fa-award" aria-hidden="true"></i>
+    CompTIA Tech+
+  </div>
+</div>
         </header>
 
         <div className="content">
