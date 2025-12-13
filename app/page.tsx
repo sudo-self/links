@@ -342,14 +342,22 @@ const removeLike = async () => {
 
 const handleShare = async () => {
   try {
-    const ogImage = metadata.openGraph?.images?.[0]?.url ?? `${window.location.origin}/icon.jpg`;
+
+    const images = Array.isArray(metadata.openGraph?.images)
+      ? metadata.openGraph.images
+      : metadata.openGraph?.images
+      ? [metadata.openGraph.images]
+      : [];
+
+    const ogImage = images[0]?.url ?? `${window.location.origin}/icon.jpg`;
 
     const shareData: any = {
       title: metadata.title ?? 'Jesse Roper - Software Engineer',
-      text: metadata.description ?? "calendar events & links",
+      text: metadata.description ?? "Jesse Roper's portfolio and links",
       url: window.location.href,
     };
 
+  
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       try {
         const response = await fetch(ogImage);
@@ -382,6 +390,7 @@ const handleShare = async () => {
     }
   }
 };
+
 
 
 
